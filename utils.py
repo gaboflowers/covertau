@@ -58,6 +58,8 @@ def get_res_by_index(config_dict, index):
     except IndexError:
         return None
 
+def set_on_start(config_dict, alias):
+    config_dict['on_start'] = alias
 
-
-
+def remove_on_start(config_dict):
+    config_dict['on_start'] = ''

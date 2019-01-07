@@ -33,6 +33,7 @@ def print_help():
     \t:add\tAgrega una nueva estación
     \t:addlist\tAgrega una lista de reproducción manual (muchos recursos)
     \t:edit\tEdita las listas de reproducción
+    \t:init\tDefine la estación para reproducir al inicio
     \t:quit\tCierra la aplicación
     """)
 
@@ -150,6 +151,34 @@ def add_source_multiple(config_dict):
     utils.append_resource(config_dict, new_res)
     utils.save_config_file(config_dict)
 
+def define_on_start(config_dict, res_id):
+    if res_id is None:
+        list_sources(config_dict)
+        on_start = config_dict.get('on_start', False)
+        on_start_current = ' ['+on_start+']' if on_start else ''
+        to_remove = ' [\'rm\' para quitar]' if on_start else ''
+        res_id = input('Recurso a sintonizar al incio%s%s: ' % (on_start_current, to_remove)).strip()
+    if not res_id:
+        return
+    if res_id == 'rm':
+        utils.remove_on_start(config_dict)
+        utils.save_config_file(config_dict)
+        return
+
+    res = utils.get_res_by_alias(config_dict, res_id)
+    if res is None:
+        print('No se encontró el alias. Abortando.')
+        return
+    alias = res.get('alias', False)
+    if not alias:
+        print('El recurso no tiene alias. ¡No hagas eso!. '
+              '¿Te gustaría tener una base de datos sin llave primaria?')
+        return
+
+    utils.set_on_start(config_dict, alias)
+    utils.save_config_file(config_dict)
+    print("Recurso '%s' programado al inicio." % alias)
+
 def parse_command(command, config_dict):
     command = command.strip()
     if len(command) == 0:
@@ -178,6 +207,11 @@ def parse_command(command, config_dict):
             add_source_single(config_dict)
         elif command in [':addlist', ':al']:
             add_source_multiple(config_dict)
+        elif command in [':init', ':i']:
+            res_id = None
+            if len(command_args) > 1:
+                res_id = command_args[1]
+            define_on_start(config_dict, res_id) 
         elif command in [':edit', ':e']:
             print('Qué paaaja, edita tú mismo el archivo %s' % utils.get_config_filepath())
         else:
@@ -213,8 +247,14 @@ if __name__ == '__main__':
             pass
         elif set_defaults in ['', 's', 'si', 'sí', 'sip', 'sep', 'seh']:
             config_dict = create_defaults()
+
     if config_dict.get('show_help', True):
         print_help()
+
+    on_start = config_dict.get('on_start', False)
+    if on_start:
+        print('On start: \'%s\'' % on_start) 
+        play_res(config_dict, on_start)
     
     run = True
     while run:
