@@ -19,7 +19,7 @@ It actually works with *any* player that can be run from the command line in thi
 ## Warning:
 - The default player is `mpv`. If you generate the default configuration file, and then change the player to `mplayer`, it will complain due to the `--no-video` global parameter (that's an mpv thing). You might want to remove it.
 
-## Why *Covertau*
+## Why *Covertau*?
 It is a radio thing. You'll see:
 ```
 \[
