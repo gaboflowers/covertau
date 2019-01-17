@@ -40,7 +40,7 @@ def print_help():
 
 def list_sources(config_dict):
     continuous = utils.list_resources(config_dict)
-    print('Lista de utils: ')
+    print('Lista de estaciones: ')
     if len(continuous) == 0:
         print('\t[Vacía]')
     else:
