@@ -185,9 +185,11 @@ def parse_command(command, config_dict):
         print("':quit' o ':q' para salir")
         return True
     elif command[0] != ':':
-        res_id = command
-        play_res(config_dict, res_id)
-        #print('Me gusta Vim. Los comandos empiezan con \':\' :P')
+        if config_dict.get('no_colon_as_play', False):
+            res_id = command
+            play_res(config_dict, res_id)
+        else:
+            print('Me gusta Vim. Los comandos empiezan con \':\' :P')
         return True
     
     command_args = command.split()
@@ -221,7 +223,24 @@ def parse_command(command, config_dict):
         return True
 
 def create_defaults():
-    config_dict = {'default_player': 'mpv', 'global_params': '--no-video'}
+    config_dict = { # default_player: Binario del reproductor. En Windows, si mpv no está       
+                    # en el PATH, quizás debas reemplazarlo por algo como:
+                    #       'C:\Program Files\mpv\mpv.com' (.com para versión CLI,
+                    #                                       .exe para versión GUI)
+                   'default_player': 'mpv',
+
+                    # global_params: Parámetros que se les pasa al reproductor
+                    # --no-video: En mpv, para no reproducir video en recursos de YouTube
+                   'global_params': '--no-video',
+
+                    # no_colon_as_play: Si es True, al ingresar un comando sin anteponer
+                    # ':', se considera como el identificador de un recurso a reproducir.
+                    # Ej: '> usach'
+                    #     sería equivalente a
+                    #     '> :play usach'
+                   'no_colon_as_play': False
+                   }
+
     #un recurso simple debe tener a lo menos una fuente (source)
     estacion_prueba = {'name': 'Universidad de Santiago',
                        'alias': 'usach',
@@ -243,7 +262,7 @@ def create_defaults():
 if __name__ == '__main__':
     config_dict = utils.read_config_file()
     if len(config_dict) == 0:
-        print("Archivo %s vacío. No hay utils ni configuraciones por defecto. " % utils.get_config_filepath())
+        print("Archivo %s vacío. No hay estaciones ni configuraciones por defecto. " % utils.get_config_filepath())
         set_defaults = input('¿Crear un archivo con configuración por defecto (y de prueba)? [S/n]: ').strip().lower()
         if set_defaults in ['n', 'no']:
             pass
