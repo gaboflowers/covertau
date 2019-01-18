@@ -185,7 +185,9 @@ def parse_command(command, config_dict):
         print("':quit' o ':q' para salir")
         return True
     elif command[0] != ':':
-        print('Me gusta Vim. Los comandos empiezan con \':\' :P')
+        res_id = command
+        play_res(config_dict, res_id)
+        #print('Me gusta Vim. Los comandos empiezan con \':\' :P')
         return True
     
     command_args = command.split()

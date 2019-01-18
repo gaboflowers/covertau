@@ -33,6 +33,12 @@ def read_config_file():
 
 def save_config_file(config_dict):
     filepath = get_config_filepath()
+
+    # crear la carpeta que contiene el archivo de configuración
+    # (y sus padres) si es que no existe(n)
+    config_folder = Path(filepath).parent
+    config_folder.mkdir(parents=True, exist_ok=True)
+
     with open(filepath, 'w') as config_file:
         json.dump(config_dict, config_file, indent=2)
 
