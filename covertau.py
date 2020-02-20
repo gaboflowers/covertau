@@ -23,13 +23,13 @@ def print_help():
     print("""
     Covertau no es un reproductor/sintonizador. Es sólo un wrapper para
     llamar a otros reproductores (diseñado para mpv), y gestionar listas de
-    utils de radio. Mientras el reproductor no tenga el control
+    estaciones de radio. Mientras el reproductor no tenga el control
     (para salir de mpv, basta presionar 'q'), los siguientes comandos
     son válidos (es necesario teclear y hacer Enter):
     \t:help\tMuestra esta ayuda
-    \t:play\tLista las utils y pregunta por una estación para escuchar.
+    \t:play\tLista las estaciones y pregunta por una estación para escuchar.
              También puede hacerse :play [alias] para escuchar directamente.
-    \t:list\tLista las utils almacenadas
+    \t:list\tLista las estaciones almacenadas
     \t:add\tAgrega una nueva estación
     \t:addlist\tAgrega una lista de reproducción manual (muchos recursos)
     \t:edit\tEdita las listas de reproducción
@@ -73,7 +73,7 @@ def play_res(config_dict, res_id):
             print('Estación no encontrada')
             return
     play_sources(config_dict, res)
-    
+
 def play_sources(config_dict, res):
     source = res.get('source', None)
     if source is None:
@@ -157,7 +157,9 @@ def define_on_start(config_dict, res_id):
         on_start = config_dict.get('on_start', False)
         on_start_current = ' ['+on_start+']' if on_start else ''
         to_remove = ' [\'rm\' para quitar]' if on_start else ''
-        res_id = input('Recurso a sintonizar al incio%s%s: ' % (on_start_current, to_remove)).strip()
+        to_cancel = ' [Enter para cancelar]' if on_start else ''
+        res_id = input('Recurso a sintonizar al incio%s%s%s: ' %
+                       (on_start_current, to_remove, to_cancel)).strip()
     if not res_id:
         return
     if res_id == 'rm':
@@ -191,7 +193,7 @@ def parse_command(command, config_dict):
         else:
             print('Me gusta Vim. Los comandos empiezan con \':\' :P')
         return True
-    
+
     command_args = command.split()
     command = command_args[0]
 
@@ -215,7 +217,7 @@ def parse_command(command, config_dict):
             res_id = None
             if len(command_args) > 1:
                 res_id = command_args[1]
-            define_on_start(config_dict, res_id) 
+            define_on_start(config_dict, res_id)
         elif command in [':edit', ':e']:
             print('Qué paaaja, edita tú mismo el archivo %s' % utils.get_config_filepath())
         else:
@@ -223,7 +225,7 @@ def parse_command(command, config_dict):
         return True
 
 def create_defaults():
-    config_dict = { # default_player: Binario del reproductor. En Windows, si mpv no está       
+    config_dict = { # default_player: Binario del reproductor. En Windows, si mpv no está
                     # en el PATH, quizás debas reemplazarlo por algo como:
                     #       'C:\Program Files\mpv\mpv.com' (.com para versión CLI,
                     #                                       .exe para versión GUI)
@@ -248,7 +250,9 @@ def create_defaults():
     #un recurso múltiple tiene una lista de fuentes
     lista_prueba = {'name': 'mayor tom',
                     'alias': 'bowie',
-                    'source': ['https://www.youtube.com/watch?v=iYYRH4apXDo',
+                    'source': [
+    #una fuente puede ser una URL
+                        'https://www.youtube.com/watch?v=iYYRH4apXDo',
     #una fuente puede también ser un diccionario (nombre y ubicación)
                               {'source_name': 'Ashes to Ashes',
                               'source_location': 'https://www.youtube.com/watch?v=CMThz7eQ6K0'
@@ -266,7 +270,7 @@ if __name__ == '__main__':
         set_defaults = input('¿Crear un archivo con configuración por defecto (y de prueba)? [S/n]: ').strip().lower()
         if set_defaults in ['n', 'no']:
             pass
-        elif set_defaults in ['', 's', 'si', 'sí', 'sip', 'sep', 'seh']:
+        elif set_defaults in ['', 's', 'si', 'sí', 'sip', 'sep', 'seh', 'dale']:
             config_dict = create_defaults()
 
     if config_dict.get('show_help', True):
@@ -274,9 +278,9 @@ if __name__ == '__main__':
 
     on_start = config_dict.get('on_start', False)
     if on_start:
-        print('On start: \'%s\'' % on_start) 
+        print('On start: \'%s\'' % on_start)
         play_res(config_dict, on_start)
-    
+
     run = True
     while run:
         try:
